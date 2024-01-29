@@ -1,34 +1,37 @@
 import { Button, Form } from "react-bootstrap";
 import ListaTareas from "./ListaTareas";
-import { useState } from "react";
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
-
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const FormularioTarea = () => {
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
   const [tarea, setTarea] = useState("");
-  const [arrayTarea, setArrayTarea] = useState([]);
+  const tareasGuardadas = JSON.parse(localStorage.getItem('tareasLS')) || [];
+  const [arrayTarea, setArrayTarea] = useState(tareasGuardadas);
+
+  useEffect(() =>{
+    console.log("hola mundo");
+    localStorage.setItem('tareasLS', JSON.stringify(arrayTarea))
+
+  }, [arrayTarea]) //Montaje y actualizción del arrayTarea
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if(arrayTarea.includes(tarea)){
+    if (arrayTarea.includes(tarea)) {
       MySwal.fire({
         icon: "error",
         title: "¡Error!",
         text: "La tarea ingresada ya existe",
-        
       });
-    }else{
+    } else {
       setArrayTarea([...arrayTarea, tarea]);
       setTarea("");
     }
-
   };
 
   const borrarTarea = (nombreTarea) => {
-
     Swal.fire({
       title: "¿Estás Seguro?",
       text: "La tarea se borrará definitivamente",
@@ -37,19 +40,20 @@ const FormularioTarea = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonColor: "#d33",
       confirmButtonText: "Borrar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
           title: "Tarea Borrada Correctamente",
           text: "La tarea fue eliminada",
-          icon: "success"
+          icon: "success",
         });
-        const arregloFiltrado = arrayTarea.filter((tarea) => tarea !== nombreTarea);
+        const arregloFiltrado = arrayTarea.filter(
+          (tarea) => tarea !== nombreTarea
+        );
         setArrayTarea(arregloFiltrado);
       }
     });
-
   };
 
   return (
@@ -71,7 +75,10 @@ const FormularioTarea = () => {
         </Form.Group>
       </Form>
 
-      <ListaTareas arrayTarea={arrayTarea} borrarTarea={borrarTarea}></ListaTareas>
+      <ListaTareas
+        arrayTarea={arrayTarea}
+        borrarTarea={borrarTarea}
+      ></ListaTareas>
     </>
   );
 };
